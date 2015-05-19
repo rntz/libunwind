@@ -429,6 +429,7 @@ fetch_proc_info (struct dwarf_cursor *c, unw_word_t ip, int need_unwind_info)
   memset (&c->pi, 0, sizeof (c->pi));
 
   /* check dynamic info first --- it overrides everything else */
+  /* TODO rntz: this might be slow when there are lots of jitted functions */
   ret = unwi_find_dynamic_proc_info (c->as, ip, &c->pi, need_unwind_info,
 				     c->as_arg);
   if (ret == -UNW_ENOINFO)
@@ -543,6 +544,7 @@ get_rs_cache (unw_addr_space_t as, intrmask_t *saved_maskp)
       lock_acquire (&cache->lock, *saved_maskp);
     }
 
+  /* XXX rntz: this looks dangerous. why does it need to be atomic? */
   if (atomic_read (&as->cache_generation) != atomic_read (&cache->generation))
     {
       flush_rs_cache (cache);
@@ -921,6 +923,7 @@ dwarf_create_state_record (struct dwarf_cursor *c, dwarf_state_record_t *sr)
 HIDDEN int
 dwarf_make_proc_info (struct dwarf_cursor *c)
 {
+    /* TODO rntz: why is this #if 0'd? does the cache not work? check upstream. */
 #if 0
   if (c->as->caching_policy == UNW_CACHE_NONE
       || get_cached_proc_info (c) < 0)

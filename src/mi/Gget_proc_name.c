@@ -55,9 +55,12 @@ get_proc_name (unw_addr_space_t as, unw_word_t ip,
 
   buf[0] = '\0';	/* always return a valid string, even if it's empty */
 
+  /* FIXME rntz: this ends up copying a dwarf_cie_info pi.unwind_info,
+   * and then reading it back as an unw_dyn_info_t! */
   ret = unwi_find_dynamic_proc_info (as, ip, &pi, 1, arg);
   if (ret == 0)
     {
+      assert(pi.format == UNW_INFO_FORMAT_DYNAMIC); /* FIXME rntz: handle this being false. */
       unw_dyn_info_t *di = pi.unwind_info;
 
       if (offp)

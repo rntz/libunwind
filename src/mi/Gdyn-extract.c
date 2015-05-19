@@ -33,7 +33,8 @@ unwi_extract_dynamic_proc_info (unw_addr_space_t as, unw_word_t ip,
   pi->start_ip = di->start_ip;
   pi->end_ip = di->end_ip;
   pi->gp = di->gp;
-  pi->format = di->format;
+  pi->format = di->format;      /* XXX rntz: is this wrong? */
+  /* This is the point at which we can end up knowing we'll return a non-UNW_INFO_FORMAT_DYNAMIC unwind_info field. */
   switch (di->format)
     {
     case UNW_INFO_FORMAT_DYNAMIC:

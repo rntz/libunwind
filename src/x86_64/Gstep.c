@@ -158,7 +158,7 @@ unw_step (unw_cursor_t *cursor)
 	    }
 	  else
 	    {
-	      unw_word_t rbp1 = 0;
+	      unw_word_t rbp1 = 0; /* might want to put an assert here to check for guessing */
 	      rbp_loc = DWARF_LOC(rbp, 0);
 	      rsp_loc = DWARF_NULL_LOC;
 	      rip_loc = DWARF_LOC (rbp + 8, 0);
