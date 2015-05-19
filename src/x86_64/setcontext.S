@@ -47,6 +47,14 @@ _Ux86_64_setcontext:
 #if defined __linux__
 	/* restore signal mask
            sigprocmask(SIG_SETMASK, ucp->uc_sigmask, NULL, sizeof(sigset_t)) */
+
+	/* PYSTON CHANGE: for some reason, libunwind restores the signal mask
+	 * in _Ux86_64_setcontext() even though _Ux86_64_getcontext doesn't
+	 * initialize it! This sets our signal mask to random stack garbage,
+	 * so I've commented it out. - rntz
+	 */
+
+	/*
 	push %rdi
 	mov $__NR_rt_sigprocmask, %rax
 	lea UC_SIGMASK(%rdi), %rsi
@@ -55,21 +63,29 @@ _Ux86_64_setcontext:
 	mov $SIGSET_BYTE_SIZE, %r10
 	syscall
 	pop %rdi
+	*/
 
         /* restore fp state */
 	mov    UC_MCONTEXT_FPREGS_PTR(%rdi),%r8
 	fldenv (%r8)
 	ldmxcsr FPREGS_OFFSET_MXCSR(%r8)
 #elif defined __FreeBSD__
+	/* PYSTON CHANGE */
+#error Pyston doesn't support FreeBSD yet.
 	/* restore signal mask */
+	/* PYSTON CHANGE: Commented out for same reason as the linux code
+	 * above, but I haven't tested this one. Use at your own risk. - rntz
+	 */
+	/*
 	pushq	%rdi
 	xorl	%edx,%edx
 	leaq	UC_SIGMASK(%rdi),%rsi
-	movl	$3,%edi/* SIG_SETMASK */
+	movl	$3,%edi/\* SIG_SETMASK *\/
 	movl	$SYS_sigprocmask,%eax
 	movq	%rcx,%r10
 	syscall
 	popq	%rdi
+	*/
 
 	/* restore fp state */
 	cmpq $UC_MCONTEXT_FPOWNED_FPU,UC_MCONTEXT_OWNEDFP(%rdi)
